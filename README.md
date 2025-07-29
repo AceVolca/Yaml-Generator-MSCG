@@ -1,5 +1,5 @@
 # Yaml-Generator-MSCG
-'''Yaml Generator for OpenMSCG by Ace.
+Yaml Generator for OpenMSCG by Ace.
 
 Description
 -----------
