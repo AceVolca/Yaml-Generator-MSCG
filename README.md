@@ -7,11 +7,11 @@ Description
 The ``cgyaml.py`` reads the user-defined mapping for residues and generate the yaml file used by cgmap. It also generate the CG coordinate file based on the input AA coordinates. 
 
 Mapping of nonprotein moleculeS/residues is based on atom indices (starting from 0) in the molecule/residue.
-Example: 2-bead methanol
+<br/>Example: 2-bead methanol
 <pre> ``` CH3 [0, 1, 2, 3] OH [4, 5] ``` </pre>
 
 Proteins are treated as one "molecule". Mapping of proteins is based on absolute protein residue indices (starting from 0).
-Example: heterodimer; chain A resid: 1-10; chain B resid: 2-7
+<br/>Example: heterodimer; chain A resid: 1-10; chain B resid: 2-7
 chain A start from 0
 <pre> ``` P0 [0, 3, 2, 1] P1 [4, 9] P2 [7, 6] P4[5, 8] ``` </pre>
 
