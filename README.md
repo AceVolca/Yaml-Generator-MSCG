@@ -8,15 +8,36 @@ The ``cgyaml.py`` reads the user-defined mapping for residues and generate the y
 
 Mapping of nonprotein moleculeS/residues is based on atom indices (starting from 0) in the molecule/residue.
 <br/>Example: 2-bead methanol
-<pre> ``` CH3 [0, 1, 2, 3] OH [4, 5] ``` </pre>
+<pre> 
+    CH3
+    [0, 1, 2, 3]
+    OH
+    [4, 5]
+</pre>
 
 Proteins are treated as one "molecule". Mapping of proteins is based on absolute protein residue indices (starting from 0).
 <br/>Example: heterodimer; chain A resid: 1-10; chain B resid: 2-7
 chain A start from 0
-<pre> ``` P0 [0, 3, 2, 1] P1 [4, 9] P2 [7, 6] P4[5, 8] ``` </pre>
+<pre>
+    P0
+    [0, 3, 2, 1]
+    P1
+    [4, 9]
+    P2
+    [7, 6]
+    P4
+    [5, 8]
+</pre>
 
 chain B start from 10 because chain A has 10 residues
-<pre> ``` P5 [10, 13] P6 [12, 11] P7 [14] ``` </pre>
+<pre>
+    P5
+    [10, 13]
+    P6
+    [12, 11]
+    P7
+    [14]
+</pre>
 
 Support random order of atom/residue indices, partial mapping (not all the atoms has to be defined in the mapping)
 
