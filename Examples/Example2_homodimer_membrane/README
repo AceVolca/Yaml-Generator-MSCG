@@ -1,0 +1,7 @@
+# bash line
+# use --loop 222 to map homodimer; homodimer is composed of 2 chains; each has 222 residues
+# protein mapping file only provides mapping for one of the chains; residue index 0-221 (resid 1-222)
+# resids in the AA coordinate file do not matter.
+# in this case, resid 1-222 1-222 (or 1-222 223-444) will be understood by absolute residue indices 0-443
+
+cgyaml --aa M_memb.pdb --cg M_memb_CG.gro --mapfile MappingFiles.yaml --yaml M_membrane_mapping.yaml --loop 222 --prefix P

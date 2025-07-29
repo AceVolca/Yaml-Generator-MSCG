@@ -1,0 +1,4 @@
+protein: protein_mapping_chainB.txt
+CHL1: CHL1/CHL1_mapping.txt
+DLIP: DLIPC/DLIPC_mapping.txt
+DPPC: DPPC/DPPC_mapping.txt

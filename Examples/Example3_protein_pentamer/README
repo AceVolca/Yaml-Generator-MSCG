@@ -1,0 +1,5 @@
+# bash line
+# use --smart True to map the pentamer given only the mapping of a monomer (can also be mapped by using --loop)
+# Might not work for high resolution coarse-graining
+
+cgyaml --aa Jiangbo_pen.pdb --cg Jiangbo_pen_CG.gro --mapfile MappingFiles.yaml --yaml pentamer_mapping.yaml --prefix P --smart

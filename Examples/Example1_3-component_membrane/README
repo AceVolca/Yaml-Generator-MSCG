@@ -1,0 +1,2 @@
+# bash line
+cgyaml --aa Patrick_membrane.gro --cg Patrick_membrane_CG.gro --mapfile MappingFiles.yaml --yaml membrane_mapping.yaml
