@@ -67,6 +67,7 @@ Syntax of running ``cgyaml`` command ::
 import yaml, MDAnalysis as mda, numpy as np
 import warnings
 import argparse
+import re
 
 # Global verbose print function placeholder
 def vprint(*args, **kwargs):
@@ -145,15 +146,6 @@ def main():
 	Residue2Bead = {} # { resname: { (index,index): bead, (index,index): bead } }
 	MappingOutput = {"site-types":{}, "system":[]}
 	P_flag = True if "protein" in MappingFile.keys() else False # whether provided mappings include protein
-
-	# Calculate the center of mass of a atom group
-	def MassCenter(grp, indices):
-		ans = np.array([0,0,0], dtype=float)
-		tot = 0
-		for idx in indices:
-			ans += grp.atoms.positions[idx] * grp.atoms[idx].mass
-			tot += grp.atoms[idx].mass
-		return ans/tot
 
 	# return the index of x in arr
 	def Find(x, arr):
@@ -308,33 +300,60 @@ def main():
 
 	# Write mapped CG coord file
 	vprint("\nWriting mapped CG coordinate file")
+
+	# get list of atom selection for each type
+	def BeadAAIdx(mapping, bead, offset):
+		return [ offset+x for x in mapping["site-types"][bead]["index"] ]
+
+	def compress_index_ranges(s):
+		# extract index
+		nums = sorted(set(int(i) for i in re.findall(r'index (\d+)', s)))
+		
+		# combine index
+		ranges = []
+		start = prev = nums[0]
+		for n in nums[1:]:
+			if n == prev + 1:
+				prev = n
+			else:
+				if start == prev:
+					ranges.append(f"index {start}")
+				else:
+					ranges.append(f"index {start} to {prev}")
+				start = prev = n
+
+		if start == prev:
+			ranges.append(f"index {start}")
+		else:
+			ranges.append(f"index {start} to {prev}")
+		
+		return ' or '.join(ranges)
+
 	CG_coord = []
 	CG_top = {"atoms":[], "residues":[], "atom_resindices":[], "residue_segindices": []}
 	resid = 0
-	if P_flag:
-		for site in CGModel["protein"]: # site[0] = bead name   site[1] = atom index offset
-			for residtup, bd in Residue2Bead["protein"].items():
-				if site[0] == bd:
-					tmp2 = [int(u.residues[i].atoms[Find("CA", u.residues[i].atoms.names)].index) for i in residtup]
-					tmp = [i-tmp2[0]+site[1] for i in tmp2]
-					CG_coord.append(np.copy(MassCenter(u, tmp[:])))
-					CG_top["atoms"].append(site[0])
-					CG_top["atom_resindices"].append(resid) # every protein CG bead is a residue
-					resid += 1
-					# CG_top["residue_segindices"].append(Res2Seg["protein"][0])
-					CG_top["residue_segindices"].append(0)
-					CG_top["residues"].append(site[0])
-					break
-	for res in u.residues:
-		if res.resname in CGModel.keys(): # the residue has defined mapping, will not write protein
-			for idxtup, bd in Residue2Bead[res.resname].items():
-				CG_coord.append(np.copy(MassCenter(res, idxtup)))
-				CG_top["atoms"].append(bd)
+
+	Mapping = yaml.safe_load(open(WrkDir+YamlName, "r"))
+	Site2Sel = [] # [sel1, sel2, ]
+	for grp in Mapping["system"]:
+		anchor = grp["anchor"]
+		offset = grp["offset"]
+		for repeat in range(grp["repeat"]):
+			for site in grp["sites"]:
+				Site2Sel.append( compress_index_ranges(" or ".join(["index "+str(x) for x in BeadAAIdx(Mapping, site[0], anchor+offset*repeat+site[1])])) )
+				tmp_sel = u.select_atoms(Site2Sel[-1])
+				CG_coord.append(tmp_sel.center_of_mass())
+				CG_top["atoms"].append(site[0])
 				CG_top["atom_resindices"].append(resid)
+			
+			# every repeat is a new residue
 			resid += 1
-			# CG_top["residue_segindices"].append(Res2Seg[res.resname][0])
 			CG_top["residue_segindices"].append(0)
-			CG_top["residues"].append(res.resname)
+			if (tmp_sel & u.select_atoms("protein")).n_atoms == tmp_sel.n_atoms:
+				CG_top["residues"].append("PRO")
+			else:
+				CG_top["residues"].append(tmp_sel.resnames[0])
+
 	Segname = ["SYS"]
 	# for item in Res2Seg.values():
 	# 	if not item[1] in Segname: Segname.append(item[1])
